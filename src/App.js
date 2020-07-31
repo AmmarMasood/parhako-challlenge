@@ -1,24 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useContext } from "react";
+// Components
+import Nav from "./Pages/Nav";
+import Photos from "./Pages/Photos";
+import Cart from "./Pages/Cart";
+// routing
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { picsContext, loadingContext } from "./Store";
 
 function App() {
+  const [pics, setPics] = useContext(picsContext);
+  const [loading, setLoading] = useContext(loadingContext);
+
+  useEffect(() => {
+    getPicsFromUrl();
+  }, []);
+
+  const getPicsFromUrl = async () => {
+    setLoading(true);
+    try {
+      let res = await fetch(
+        "https://raw.githubusercontent.com/bobziroll/scrimba-react-bootcamp-images/master/images.json"
+      );
+      let data = await res.json();
+      setPics(data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error while loading images");
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <Nav />
+        <Switch>
+          <Route path="/cart" component={Cart} />
+          <Route path="/" component={Photos} />
+        </Switch>
+      </Router>
     </div>
   );
 }
